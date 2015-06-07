@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -42,33 +41,31 @@ func (m JsonFileMode) MarshalJSON() ([]byte, error) {
 
 func humanizeByteSize(size JsonFileSize) string {
 	const (
-		kilobyte = 1024
-		megabyte = 1024 * kilobyte
-		gigabyte = 1024 * megabyte
-		terabyte = 1024 * gigabyte
+		_        = iota
+		kilobyte = 1 << (10 * iota)
+		megabyte
+		gigabyte
+		terabyte
 	)
 
-	var unit string
+	format := "%.f"
 	value := float32(size)
 
 	switch {
 	case size >= terabyte:
-		unit = "T"
+		format = "%3.1f TB"
 		value = value / terabyte
 	case size >= gigabyte:
-		unit = "G"
+		format = "%3.1f GB"
 		value = value / gigabyte
 	case size >= megabyte:
-		unit = "M"
+		format = "%3.1f MB"
 		value = value / megabyte
 	case size >= kilobyte:
-		unit = "K"
+		format = "%3.1f KB"
 		value = value / kilobyte
 	}
-
-	stringValue := fmt.Sprintf("%3.2f", value)
-	stringValue = strings.TrimSuffix(stringValue, ".0")
-	return fmt.Sprintf("%s%s", stringValue, unit)
+	return fmt.Sprintf(format, value)
 }
 
 type JsonFileSize int64
