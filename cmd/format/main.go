@@ -5,22 +5,40 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"text/template"
+)
+
+const (
+	baseTemplate = "{{ if .errors }}{{ range .errors }}{{ . }}\n{{ end }}{{ else }}{{ range .columns }}{{ bold .name }}\t{{end}}\n{{ range .data }}{{ range . }}{{ . }}\t{{ end }}\n{{ end }}{{ end }}"
+
+	BoldCode  = "\033[1m"
+	ResetCode = "\033[0m"
+
 )
 
 var (
 	format string
 )
 
+func bold(s string) string {
+	return fmt.Sprintf("%s%s%s", BoldCode, s, ResetCode)
+}
+
 func main() {
-	var jsonObjects []map[string]interface{}
+	var jsonObjects map[string]interface{}
 
 	enc := json.NewDecoder(os.Stdin)
 	_ = enc.Decode(&jsonObjects)
 
-	for _, obj := range jsonObjects {
-		if val, ok := obj[format]; ok {
-			fmt.Println(val)
-		}
+	t, err := template.New("json-formatter").
+		Funcs(template.FuncMap{"bold": bold}).
+		Parse(baseTemplate)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Execute(os.Stdout, jsonObjects)
+	if err != nil {
+		panic(err)
 	}
 }
 
