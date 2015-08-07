@@ -15,7 +15,7 @@ func main() {
 	fileInfos, _ := ioutil.ReadDir(path) // TODO: Error handling
 
 	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(NewFileInfos(fileInfos))
+	enc.Encode(NewJsonResult(fileInfos))
 }
 
 func init() {
