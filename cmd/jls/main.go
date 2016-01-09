@@ -4,24 +4,26 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
 var (
-	path string
+	path = flag.String("path", ".", "Path to list the contents of")
 )
 
 func main() {
-	fileInfos, _ := ioutil.ReadDir(path) // TODO: Error handling
+	fileInfos, _ := ioutil.ReadDir(*path) // TODO: Error handling
 
 	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(NewJsonResult(fileInfos))
+	if err := enc.Encode(NewJsonResult(fileInfos)); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func init() {
-	flag.StringVar(&path, "path", ".", "Path to list the contents of")
 	flag.Parse()
-	if args := flag.Args(); len(args) > 0 {
-		path = args[0]
+	if arg := flag.Arg(0); arg != "" {
+		*path = arg
 	}
 }
