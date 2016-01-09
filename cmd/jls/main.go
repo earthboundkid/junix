@@ -14,6 +14,13 @@ var (
 	path = flag.String("path", ".", "Path to list the contents of")
 )
 
+func init() {
+	flag.Parse()
+	if arg := flag.Arg(0); arg != "" {
+		*path = arg
+	}
+}
+
 func main() {
 	enc := json.NewEncoder(os.Stdout)
 	if err := enc.Encode(junix.FileInfoColumns); err != nil {
@@ -28,12 +35,5 @@ func main() {
 		if err := enc.Encode(junix.NewFileInfo(info)); err != nil {
 			junix.Die(enc, err)
 		}
-	}
-}
-
-func init() {
-	flag.Parse()
-	if arg := flag.Arg(0); arg != "" {
-		*path = arg
 	}
 }
