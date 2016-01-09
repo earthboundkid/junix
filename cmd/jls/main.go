@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/carlmjohnson/junix"
 )
 
 var (
@@ -13,11 +15,20 @@ var (
 )
 
 func main() {
-	fileInfos, _ := ioutil.ReadDir(*path) // TODO: Error handling
-
 	enc := json.NewEncoder(os.Stdout)
-	if err := enc.Encode(NewJsonResult(fileInfos)); err != nil {
+	if err := enc.Encode(junix.FileInfoColumns); err != nil {
 		log.Fatal(err)
+	}
+
+	fileInfos, err := ioutil.ReadDir(*path)
+	if err != nil {
+		log.Fatal(err) // TODO: Error handling
+	}
+
+	for _, info := range fileInfos {
+		if err := enc.Encode(junix.NewFileInfo(info)); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
