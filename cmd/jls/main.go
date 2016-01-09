@@ -17,17 +17,16 @@ var (
 func main() {
 	enc := json.NewEncoder(os.Stdout)
 	if err := enc.Encode(junix.FileInfoColumns); err != nil {
+		// If this fails, we can't handle it with junix.Die because there is no stdout...
 		log.Fatal(err)
 	}
 
 	fileInfos, err := ioutil.ReadDir(*path)
-	if err != nil {
-		log.Fatal(err) // TODO: Error handling
-	}
+	junix.Die(enc, err)
 
 	for _, info := range fileInfos {
 		if err := enc.Encode(junix.NewFileInfo(info)); err != nil {
-			log.Fatal(err)
+			junix.Die(enc, err)
 		}
 	}
 }
